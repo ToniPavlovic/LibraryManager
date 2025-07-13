@@ -13,6 +13,6 @@ public class Book {
 
     @Override
     public String toString() {
-        return (isBorrowed ? "[X] " : "[ ] " + title + " by " + author + " (ISBN: " + isbn + ")");
+        return (isBorrowed ? "[X] " : "[ ] ") + title + " by " + author + " (ISBN: " + isbn + ")";
     }
 }
