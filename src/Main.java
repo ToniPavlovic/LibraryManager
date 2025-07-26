@@ -1,13 +1,16 @@
-import java.io.File;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Book> library = new ArrayList<>();
+
     public static void main(String[] args) {
         loadFromFIle();
         while (true){
@@ -100,28 +103,26 @@ public class Main {
     }
 
     static void saveToFile(){
-        try (PrintWriter writer = new PrintWriter("library.txt")){
-            for (Book book : library){
-                writer.println(book.title + ";" + book.author + ";" + book.isbn + ";" + book.isBorrowed);
-            }
+        try {
+            Gson gson = new Gson();
+            String json = gson.toJson(library);
+            Files.write(Paths.get("library.json"), json.getBytes());
+            System.out.println("Library saved.");
         } catch (IOException e){
             System.out.println("Error saving library: " + e.getMessage());
         }
     }
 
     static void loadFromFIle(){
-        File file = new File("library.txt");
-        if (!file.exists()) return;
+        try {
+            Path path = Paths.get("library.json");
+            if (!Files.exists(path)) return;
 
-        try (Scanner fileScanner = new Scanner(file)){
-            while (fileScanner.hasNextLine()){
-                String[] parts = fileScanner.nextLine().split(";");
-                if (parts.length == 4){
-                    Book book = new Book(parts[0], parts[1], parts[2]);
-                    book.isBorrowed = Boolean.parseBoolean(parts[3]);
-                    library.add(book);
-                }
-            }
+            String json = Files.readString(path);
+            Gson gson = new Gson();
+            library = gson.fromJson(json, new TypeToken<ArrayList<Book>>(){}.getType());
+
+            if (library == null) library = new ArrayList<>();
         } catch (IOException e) {
             System.out.println("Error loading library: " + e.getMessage());
         }
