@@ -6,3 +6,6 @@ It allows you to:
 - List all books
 - Search books by title or author
 - Remove books from the list
+- Borrow and return books
+
+All changes are saved to the file **library.txt**.
