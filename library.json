@@ -1,1 +1,16 @@
-[{"title":"Demons","author":"Fyodor Dostoevsky","isbn":"9780141441412","isBorrowed":false}]
+[
+  {
+    "id": 1,
+    "title": "Demons",
+    "author": "Fyodor Dostoevsky",
+    "isbn": "0141441410",
+    "isBorrowed": false
+  },
+  {
+    "id": 2,
+    "title": "The Idiot",
+    "author": "Fyodor Dostoevsky",
+    "isbn": "014044792X",
+    "isBorrowed": false
+  }
+]

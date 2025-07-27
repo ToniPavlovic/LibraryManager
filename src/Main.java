@@ -1,10 +1,10 @@
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.*;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -12,13 +12,13 @@ public class Main {
     static ArrayList<Book> library = new ArrayList<>();
 
     public static void main(String[] args) {
-        loadFromFIle();
+        loadFromFile();
         while (true){
             System.out.println("\n---Library Menu---");
             System.out.println("1) Add Book");
             System.out.println("2) List Books");
             System.out.println("3) Search Book");
-            System.out.println("4) Borrow Book");
+            System.out.println("4) Borrow or Return Book");
             System.out.println("5) Remove Book");
             System.out.println("6) Exit");
 
@@ -29,7 +29,7 @@ public class Main {
                 case "1": addBook(); break;
                 case "2": listBooks(); break;
                 case "3": searchBook(); break;
-                case "4": borrowBook(); break;
+                case "4": borrowOrReturnBook(); break;
                 case "5": removeBook(); break;
                 case "6": return;
                 default: System.out.println("Invalid choice!");
@@ -38,6 +38,8 @@ public class Main {
     }
 
     static void addBook(){
+        System.out.print("ID: ");
+        int id = Integer.parseInt(scanner.nextLine());
         System.out.print("Title: ");
         String title = scanner.nextLine();
         System.out.print("Author: ");
@@ -45,17 +47,24 @@ public class Main {
         System.out.print("ISBN: ");
         String isbn = scanner.nextLine();
 
-        library.add(new Book(title, author, isbn));
+        library.add(new Book(id, title, author, isbn));
         System.out.println("Book added.");
         saveToFile();
     }
 
     static void listBooks(){
         if (library.isEmpty()){
-            System.out.println("No books found!");
-        } else {
-            for (int i = 0 ; i < library.size() ; i++){
-                System.out.println((i+1) + ". " + library.get(i));
+            System.out.println("No books in library!");
+        }
+
+        for (Book book : library){
+            System.out.println(book);
+
+            if (book.isBorrowed && book.borrowDate != null){
+                LocalDate dueDate = book.borrowDate.plusDays(14);
+                if (dueDate.isBefore(LocalDate.now())){
+                    System.out.println("OVERDUE! Due: " + dueDate);
+                }
             }
         }
     }
@@ -73,19 +82,28 @@ public class Main {
         if (!found) System.out.println("No books with such title or author were found.");
     }
 
-    static void borrowBook(){
+    static void borrowOrReturnBook(){
         listBooks();
-        System.out.print("Enter the number of the book you wish to borrow or return: ");
-        int index = Integer.parseInt(scanner.nextLine()) -1;
+        System.out.print("Enter the ID of the book you wish to borrow or return: ");
+        int id = Integer.parseInt(scanner.nextLine());
 
-        if (index >= 0 && index < library.size()){
-            Book book = library.get(index);
-            book.isBorrowed = !book.isBorrowed;
-            System.out.println("Book status updated: " + (book.isBorrowed ? "Borrowed" : "Returned"));
-        } else {
-            System.out.println("Invalid index. No matches found.");
+        for (Book book : library){
+            if (book.id == id){
+                if (!book.isBorrowed){
+                    System.out.print("Enter your name: ");
+                    book.borrowedBy = scanner.nextLine();
+                    book.borrowDate = LocalDate.now();
+                    book.isBorrowed = true;
+                    System.out.println("Book borrowed.");
+                } else {
+                    book.isBorrowed = false;
+                    book.borrowedBy = null;
+                    book.borrowDate = null;
+                    System.out.println("Book returned.");
+                }
+                saveToFile();
+            }
         }
-        saveToFile();
     }
 
     static void removeBook(){
@@ -102,27 +120,43 @@ public class Main {
         saveToFile();
     }
 
-    static void saveToFile(){
-        try {
-            Gson gson = new Gson();
+    static Gson getGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, _, _) ->
+                        LocalDate.parse(json.getAsString()))
+                .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (date, _, _) ->
+                        new JsonPrimitive(date.toString()))
+                .setPrettyPrinting()
+                .create();
+    }
+
+    static void saveToFile() {
+        Gson gson = getGson();
+
+        try (PrintWriter writer = new PrintWriter("library.json")) {
             String json = gson.toJson(library);
-            Files.write(Paths.get("library.json"), json.getBytes());
-            System.out.println("Library saved.");
-        } catch (IOException e){
+            writer.write(json);
+        } catch (IOException e) {
             System.out.println("Error saving library: " + e.getMessage());
         }
     }
 
-    static void loadFromFIle(){
-        try {
-            Path path = Paths.get("library.json");
-            if (!Files.exists(path)) return;
+    static void loadFromFile() {
+        File file = new File("library.json");
+        if (!file.exists()) return;
 
-            String json = Files.readString(path);
-            Gson gson = new Gson();
-            library = gson.fromJson(json, new TypeToken<ArrayList<Book>>(){}.getType());
+        Gson gson = getGson();
 
-            if (library == null) library = new ArrayList<>();
+        try (Scanner fileScanner = new Scanner(file)) {
+            StringBuilder json = new StringBuilder();
+            while (fileScanner.hasNextLine()) {
+                json.append(fileScanner.nextLine());
+            }
+            Book[] books = gson.fromJson(json.toString(), Book[].class);
+            library.clear();
+            if (books != null) {
+                library.addAll(Arrays.asList(books));
+            }
         } catch (IOException e) {
             System.out.println("Error loading library: " + e.getMessage());
         }
