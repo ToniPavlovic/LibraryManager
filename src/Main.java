@@ -10,6 +10,8 @@ import java.util.Scanner;
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Book> library = new ArrayList<>();
+    static ArrayList<User> users = new ArrayList<>();
+    static int nextUserId = 1;
 
     public static void main(String[] args) {
         loadFromFile();
@@ -20,7 +22,9 @@ public class Main {
             System.out.println("3) Search Book");
             System.out.println("4) Borrow or Return Book");
             System.out.println("5) Remove Book");
-            System.out.println("6) Exit");
+            System.out.println("6) Register User");
+            System.out.println("7) List Users");
+            System.out.println("8) Exit");
 
             System.out.print("Choose: ");
             String choice = scanner.nextLine();
@@ -31,7 +35,9 @@ public class Main {
                 case "3": searchBook(); break;
                 case "4": borrowOrReturnBook(); break;
                 case "5": removeBook(); break;
-                case "6": return;
+                case "6": registerUser(); break;
+                case "7": listUsers(); break;
+                case "8": return;
                 default: System.out.println("Invalid choice!");
             }
         }
@@ -90,14 +96,28 @@ public class Main {
         for (Book book : library){
             if (book.id == id){
                 if (!book.isBorrowed){
-                    System.out.print("Enter your name: ");
-                    book.borrowedBy = scanner.nextLine();
-                    book.borrowDate = LocalDate.now();
+                    listUsers();
+                    System.out.print("Enter user ID: ");
+                    int userID = Integer.parseInt(scanner.nextLine());
+
+                    User borrower = users.stream()
+                            .filter(u -> u.id == userID)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (borrower == null){
+                        System.out.println("User not found.");
+                    }
+
                     book.isBorrowed = true;
+                    if (borrower != null) {
+                        book.borrowedByUserId = borrower.id;
+                    }
+                    book.borrowDate = LocalDate.now();
                     System.out.println("Book borrowed.");
                 } else {
                     book.isBorrowed = false;
-                    book.borrowedBy = null;
+                    book.borrowedByUserId = -1;
                     book.borrowDate = null;
                     System.out.println("Book returned.");
                 }
@@ -139,6 +159,8 @@ public class Main {
         } catch (IOException e) {
             System.out.println("Error saving library: " + e.getMessage());
         }
+
+        saveUsers(gson);
     }
 
     static void loadFromFile() {
@@ -159,6 +181,55 @@ public class Main {
             }
         } catch (IOException e) {
             System.out.println("Error loading library: " + e.getMessage());
+        }
+
+        loadUsers(gson);
+    }
+
+    static void registerUser(){
+        System.out.print("Enter name: ");
+        String name = scanner.nextLine();
+        User user = new User(nextUserId++, name);
+        users.add(user);
+        System.out.println("User registered: " + user);
+        saveToFile();
+    }
+
+    static void listUsers(){
+        if (users.isEmpty()){
+            System.out.println("No users registered.");
+        } else {
+            for (User user : users){
+                System.out.println(user);
+            }
+        }
+    }
+
+    static void saveUsers(Gson gson){
+        try (PrintWriter writer = new PrintWriter("users.json")) {
+            String json = gson.toJson(users);
+            writer.write(json);
+        } catch (IOException e) {
+            System.out.println("Error saving users: " + e.getMessage());
+        }
+    }
+
+    static void loadUsers(Gson gson) {
+        File file = new File("users.json");
+        if (!file.exists()) return;
+
+        try (Scanner fileScanner = new Scanner(file)) {
+            StringBuilder json = new StringBuilder();
+            while (fileScanner.hasNextLine()) {
+                json.append(fileScanner.nextLine());
+            }
+            User[] loadedUsers = gson.fromJson(json.toString(), User[].class);
+            if (loadedUsers != null) {
+                users.addAll(Arrays.asList(loadedUsers));
+                nextUserId = users.stream().mapToInt(u -> u.id).max().orElse(0) +1;
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading users: " + e.getMessage());
         }
     }
 }
