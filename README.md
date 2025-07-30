@@ -7,7 +7,8 @@ It allows you to:
 - Search books by title or author
 - Remove books from the list
 - Borrow and return books
-- Register users (ID, name)
+- Register users (ID, name, password)
+- Login or logout as User
 - List all users
 
 All changes are saved to the files **library.json** and **users.json** using **GSON**.
