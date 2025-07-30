@@ -11,6 +11,7 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Book> library = new ArrayList<>();
     static ArrayList<User> users = new ArrayList<>();
+    static User loggedInUser = null;
     static int nextUserId = 1;
 
     public static void main(String[] args) {
@@ -23,8 +24,10 @@ public class Main {
             System.out.println("4) Borrow or Return Book");
             System.out.println("5) Remove Book");
             System.out.println("6) Register User");
-            System.out.println("7) List Users");
-            System.out.println("8) Exit");
+            System.out.println("7) Login User");
+            System.out.println("8) Logout User");
+            System.out.println("9) List Users");
+            System.out.println("10) Exit");
 
             System.out.print("Choose: ");
             String choice = scanner.nextLine();
@@ -36,8 +39,10 @@ public class Main {
                 case "4": borrowOrReturnBook(); break;
                 case "5": removeBook(); break;
                 case "6": registerUser(); break;
-                case "7": listUsers(); break;
-                case "8": return;
+                case "7": loginUser(); break;
+                case "8": logoutUser(); break;
+                case "9": listUsers(); break;
+                case "10": return;
                 default: System.out.println("Invalid choice!");
             }
         }
@@ -89,6 +94,10 @@ public class Main {
     }
 
     static void borrowOrReturnBook(){
+        if (loggedInUser == null){
+            System.out.println("You must be logged in to be able borrow or return books.");
+            return;
+        }
         listBooks();
         System.out.print("Enter the ID of the book you wish to borrow or return: ");
         int id = Integer.parseInt(scanner.nextLine());
@@ -96,32 +105,22 @@ public class Main {
         for (Book book : library){
             if (book.id == id){
                 if (!book.isBorrowed){
-                    listUsers();
-                    System.out.print("Enter user ID: ");
-                    int userID = Integer.parseInt(scanner.nextLine());
-
-                    User borrower = users.stream()
-                            .filter(u -> u.id == userID)
-                            .findFirst()
-                            .orElse(null);
-
-                    if (borrower == null){
-                        System.out.println("User not found.");
-                    }
-
-                    book.isBorrowed = true;
-                    if (borrower != null) {
-                        book.borrowedByUserId = borrower.id;
-                    }
+                    book.borrowedByUserId = loggedInUser.id;
                     book.borrowDate = LocalDate.now();
+                    book.isBorrowed = true;
                     System.out.println("Book borrowed.");
                 } else {
+                    if (book.borrowedByUserId != loggedInUser.id){
+                        System.out.println("You cant return a book that is borrowed by another user.");
+                        return;
+                    }
                     book.isBorrowed = false;
                     book.borrowedByUserId = -1;
                     book.borrowDate = null;
                     System.out.println("Book returned.");
                 }
                 saveToFile();
+                return;
             }
         }
     }
@@ -129,13 +128,13 @@ public class Main {
     static void removeBook(){
         listBooks();
         System.out.print("Enter the number of the book you wish to remove: ");
-        int index = Integer.parseInt(scanner.nextLine()) -1;
+        int id = Integer.parseInt(scanner.nextLine()) ;
 
-        if (index >= 0 && index < library.size()){
-            library.remove(index);
+        boolean removed = library.removeIf(book -> book.id == id);
+        if (removed){
             System.out.println("The book was successfully removed from the list.");
         } else {
-            System.out.println("Invalid index. No matches found.");
+            System.out.println("Invalid ID. No matches found.");
         }
         saveToFile();
     }
@@ -187,12 +186,40 @@ public class Main {
     }
 
     static void registerUser(){
-        System.out.print("Enter name: ");
+        System.out.print("Name: ");
         String name = scanner.nextLine();
-        User user = new User(nextUserId++, name);
-        users.add(user);
-        System.out.println("User registered: " + user);
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        users.add(new User(nextUserId++, name, password));
+        System.out.println("User registered.");
         saveToFile();
+    }
+
+    static void loginUser(){
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        boolean found = false;
+        for (User user : users){
+            if (user.name.equals(name) && user.password.equals(password)) {
+                loggedInUser = user;
+                System.out.println("Logged in as: " + user.name);
+                found = true;
+                break;
+            }
+        }
+        if (!found) System.out.println("Invalid credentials.");
+    }
+
+    static void logoutUser(){
+        if (loggedInUser != null){
+            System.out.println("Logged out: " + loggedInUser.name);
+            loggedInUser = null;
+        } else {
+            System.out.println("No user is currently logged in.");
+        }
     }
 
     static void listUsers(){
