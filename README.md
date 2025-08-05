@@ -1,4 +1,6 @@
-# 📚 Simple Java Library Manager
+# 📚 Library Manager
+
+Written in Java.
 
 It allows you to:
 
