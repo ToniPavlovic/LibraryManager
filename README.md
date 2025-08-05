@@ -2,12 +2,13 @@
 
 It allows you to:
 
-- Add books (ID, title, author, ISBN)
+- Add books (ID, title, author, ISBN) (admin only)
 - List all books
 - Search books by title or author
-- Remove books from the list
+- Remove books from the list (admin only)
 - Borrow and return books
-- Register users (ID, name, password)
+- Register users (ID, name, password) (admin only)
+- Remove users (admin only)
 - Login or logout as User
 - List all users
 
