@@ -8,6 +8,7 @@ public class Book {
     boolean isBorrowed = false;
     int borrowedByUserId = -1;
     LocalDate borrowDate;
+    LocalDate dueDate;
 
     Book(int id, String title, String author, String isbn){
         this.id = id;

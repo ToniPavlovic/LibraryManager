@@ -23,12 +23,13 @@ public class Main {
             System.out.println("3) Add Book");
             System.out.println("4) List Books");
             System.out.println("5) Search Book");
-            System.out.println("6) Borrow or Return Book");
-            System.out.println("7) Remove Book");
-            System.out.println("8) Register User");
-            System.out.println("9) List Users");
-            System.out.println("10) Remove User");
-            System.out.println("11) Exit");
+            System.out.println("6) Borrow Book");
+            System.out.println("7) Return Book");
+            System.out.println("8) Remove Book");
+            System.out.println("9) Register User");
+            System.out.println("10) List Users");
+            System.out.println("11) Remove User");
+            System.out.println("12) Exit");
 
             System.out.print("Choose: ");
             String choice = scanner.nextLine();
@@ -39,12 +40,13 @@ public class Main {
                 case "3": addBook(); break;
                 case "4": listBooks(); break;
                 case "5": searchBook(); break;
-                case "6": borrowOrReturnBook(); break;
-                case "7": removeBook(); break;
-                case "8": registerUser(); break;
-                case "9": listUsers(); break;
-                case "10": removeUser(); break;
-                case "11": return;
+                case "6": borrowBook(); break;
+                case "7": returnBook(); break;
+                case "8": removeBook(); break;
+                case "9": registerUser(); break;
+                case "10": listUsers(); break;
+                case "11": removeUser(); break;
+                case "12": return;
                 default: System.out.println("Invalid choice!");
             }
         }
@@ -100,36 +102,75 @@ public class Main {
         if (!found) System.out.println("No books with such title or author were found.");
     }
 
-    static void borrowOrReturnBook(){
+    static void borrowBook(){
         if (loggedInUser == null){
             System.out.println("You must be logged in to be able borrow or return books.");
             return;
         }
+
         listBooks();
-        System.out.print("Enter the ID of the book you wish to borrow or return: ");
+        System.out.print("Enter the ID of the book you wish to borrow: ");
         int id = Integer.parseInt(scanner.nextLine());
 
         for (Book book : library){
             if (book.id == id){
-                if (!book.isBorrowed){
-                    book.borrowedByUserId = loggedInUser.id;
-                    book.borrowDate = LocalDate.now();
-                    book.isBorrowed = true;
-                    System.out.println("Book borrowed.");
-                } else {
-                    if (book.borrowedByUserId != loggedInUser.id){
-                        System.out.println("You can not return a book that is borrowed by another user.");
-                        return;
-                    }
-                    book.isBorrowed = false;
-                    book.borrowedByUserId = -1;
-                    book.borrowDate = null;
-                    System.out.println("Book returned.");
+                if (book.isBorrowed){
+                    System.out.println("Book is already borrowed");
+                    return;
                 }
+
+                book.isBorrowed = true;
+                book.borrowedByUserId = loggedInUser.id;
+                book.borrowDate = LocalDate.now();
+                book.dueDate = LocalDate.now().plusDays(14);
+
+                System.out.println(loggedInUser.name + " has borrowed " + book.title + " . Due date: " + book.dueDate);
                 saveToFile();
                 return;
             }
         }
+
+        System.out.println("Book not found.");
+    }
+
+    static void returnBook(){
+        if (loggedInUser == null){
+            System.out.println("You must be logged in to be able borrow or return books.");
+            return;
+        }
+
+        System.out.print("Enter the ID of the book you wish to return: ");
+        int id = Integer.parseInt(scanner.nextLine());
+
+        for (Book book : library) {
+            if (book.id == id) {
+                if (!book.isBorrowed || book.borrowedByUserId != loggedInUser.id) {
+                    System.out.println("You did not borrow this book.");
+                    return;
+                }
+
+                LocalDate today = LocalDate.now();
+                if (today.isAfter(book.dueDate)) {
+                    long daysLate = java.time.temporal.ChronoUnit.DAYS.between(book.dueDate, today);
+                    double fine = daysLate * 1.0;
+                    System.out.println("Book is overdue! Days late: " + daysLate +
+                            ". Fine: €" + fine);
+                } else {
+                    System.out.println("Book returned on time. No fines.");
+                }
+
+                book.isBorrowed = false;
+                book.borrowedByUserId = -1;
+                book.borrowDate = null;
+                book.dueDate = null;
+
+                System.out.println(loggedInUser.name + " has returned " + book.title);
+                saveToFile();
+                return;
+            }
+        }
+
+        System.out.println("Book not found.");
     }
 
     static void removeBook(){
