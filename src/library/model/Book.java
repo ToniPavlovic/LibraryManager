@@ -1,16 +1,18 @@
+package library.model;
+
 import java.time.LocalDate;
 
 public class Book {
-    int id;
-    String title;
-    String author;
-    String isbn;
-    boolean isBorrowed = false;
-    int borrowedByUserId = -1;
-    LocalDate borrowDate;
-    LocalDate dueDate;
+    public int id;
+    public String title;
+    public String author;
+    public String isbn;
+    public boolean isBorrowed = false;
+    public int borrowedByUserId = -1;
+    public LocalDate borrowDate;
+    public LocalDate dueDate;
 
-    Book(int id, String title, String author, String isbn){
+    public Book(int id, String title, String author, String isbn){
         this.id = id;
         this.title = title;
         this.author = author;

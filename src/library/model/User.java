@@ -1,8 +1,10 @@
+package library.model;
+
 public class User {
-    int id;
-    String name;
-    String password;
-    boolean isAdmin;
+    public int id;
+    public String name;
+    public String password;
+    public boolean isAdmin;
 
     public User (int id, String name, String password, boolean isAdmin){
         this.id = id;
