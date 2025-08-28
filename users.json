@@ -1,8 +1,8 @@
 [
   {
     "id": 1,
-    "name": "Toni Pavlovic",
-    "password": "12345",
+    "name": "Toni",
+    "password": "$2a$10$gwkH2WDAaxBiPtH61wJ.o.jZWaRvVPfFyaXglTIwk3O0lGKeTV2oS",
     "isAdmin": true
   }
 ]
