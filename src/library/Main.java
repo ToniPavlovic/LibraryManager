@@ -31,15 +31,11 @@ public class Main {
                 switch (choice) {
                     case "1" -> login();
                     case "2" -> logout();
-                    case "3" -> addBook();
-                    case "4" -> listBooks();
-                    case "5" -> borrowBook();
-                    case "6" -> returnBook();
-                    case "7" -> registerUser();
-                    case "8" -> listUsers();
-                    case "9" -> removeUser();
-                    case "10" -> removeBook();
-                    case "11" -> exit();
+                    case "3" -> listBooks();
+                    case "4" -> borrowBook();
+                    case "5" -> returnBook();
+                    case "6" -> adminMenu();
+                    case "7" -> exit();
                     default -> System.out.println("Invalid choice!");
                 }
             } catch (Exception e) {
@@ -52,15 +48,11 @@ public class Main {
         System.out.println("\n--- Library Menu ---");
         System.out.println("1) Login");
         System.out.println("2) Logout");
-        System.out.println("3) Add Book");
-        System.out.println("4) List Books");
-        System.out.println("5) Borrow Book");
-        System.out.println("6) Return Book");
-        System.out.println("7) Register User");
-        System.out.println("8) List Users");
-        System.out.println("9) Remove User");
-        System.out.println("10) Remove Book");
-        System.out.println("11) Exit");
+        System.out.println("3) List Books");
+        System.out.println("4) Borrow Book");
+        System.out.println("5) Return Book");
+        System.out.println("6) Admin Menu");
+        System.out.println("7) Exit");
         System.out.print("Choose: ");
     }
 
@@ -156,5 +148,39 @@ public class Main {
     private static void exit() {
         System.out.println("Goodbye!");
         System.exit(0);
+    }
+
+    private static void adminMenu() {
+        if (loggedInUser == null) throw new RuntimeException("You must be logged in!");
+        if (!loggedInUser.isAdmin)
+        {
+            System.out.println("Access denied. Admins only!");
+            return;
+        }
+
+        while (true)
+        {
+            System.out.println("\n--- Admin Menu ---");
+            System.out.println("1. Register new User");
+            System.out.println("2. List Users");
+            System.out.println("3. Remove User");
+            System.out.println("4. Add Book");
+            System.out.println("5. Remove Book");
+            System.out.println("6. Back");
+
+            System.out.print("Choose: ");
+            var choice = scanner.nextLine();
+
+            switch (choice)
+            {
+                case "1": registerUser(); break;
+                case "2": listUsers(); break;
+                case "3": removeUser(); break;
+                case "4": addBook(); break;
+                case "5": removeBook(); break;
+                case "6": return;
+                default: System.out.println("Invalid choice!"); break;
+            }
+        }
     }
 }

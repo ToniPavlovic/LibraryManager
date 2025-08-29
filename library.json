@@ -13,6 +13,6 @@
     "author": "Fyodor Dostoevsky",
     "isbn": "014044792X",
     "isBorrowed": false,
-    "borrowedByUserId": 0
+    "borrowedByUserId": -1
   }
 ]
