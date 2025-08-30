@@ -21,7 +21,7 @@ public class Book {
 
     @Override
     public String toString() {
-        String status = isBorrowed ? "Borrowed by User ID" + borrowedByUserId + " on " + borrowDate : "Available";
+        String status = isBorrowed ? "Borrowed" : "Available";
         return String.format("[%d] \"%s\" by %s (%s) - %s", id, title, author, isbn, status);
     }
 }

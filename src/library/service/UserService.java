@@ -28,6 +28,9 @@ public class UserService {
 
         User newUser = new User(nextId, name, hashPassword(password), isAdmin);
         repo.add(newUser);
+        repo.save();
+
+        System.out.println("User registered successfully!.");
     }
 
     public User login(String name, String password){
@@ -50,6 +53,9 @@ public class UserService {
         if (!exists) throw new RuntimeException("User not found!");
 
         repo.remove(userId);
+        repo.save();
+
+        System.out.println("User registered successfully!.");
     }
 
     public static String hashPassword(String password){

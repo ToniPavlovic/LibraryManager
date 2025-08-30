@@ -85,7 +85,6 @@ public class Main {
         String isbn = scanner.nextLine();
 
         bookService.addBook(new Book(id, title, author, isbn), loggedInUser);
-        System.out.println("Book added.");
     }
 
     private static void listBooks() {
@@ -98,14 +97,12 @@ public class Main {
         System.out.print("Enter book ID: ");
         int id = Integer.parseInt(scanner.nextLine());
         bookService.borrowBook(id, loggedInUser);
-        System.out.println("Book borrowed.");
     }
 
     private static void returnBook() {
         System.out.print("Enter book ID: ");
         int id = Integer.parseInt(scanner.nextLine());
         bookService.returnBook(id, loggedInUser);
-        System.out.println("Book returned.");
     }
 
     private static void registerUser() {
@@ -122,7 +119,6 @@ public class Main {
         }
 
         userService.registerUser(name, password, isAdmin, loggedInUser);
-        System.out.println("User registered.");
     }
 
     private static void listUsers() {
@@ -142,7 +138,6 @@ public class Main {
         System.out.print("Enter book ID: ");
         int id = Integer.parseInt(scanner.nextLine());
         bookService.removeBook(id, loggedInUser);
-        System.out.println("Book removed.");
     }
 
     private static void exit() {
