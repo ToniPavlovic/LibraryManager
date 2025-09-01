@@ -11,6 +11,7 @@ public class Book {
     public int borrowedByUserId = -1;
     public LocalDate borrowDate;
     public LocalDate dueDate;
+    public static final double FINE_PER_DAY = 1.0;
 
     public Book(int id, String title, String author, String isbn){
         this.id = id;
@@ -21,7 +22,7 @@ public class Book {
 
     @Override
     public String toString() {
-        String status = isBorrowed ? "Borrowed" : "Available";
+        String status = isBorrowed ? "Borrowed (User ID: " + borrowedByUserId + ", Due: " + dueDate + ")" : "Available";
         return String.format("[%d] \"%s\" by %s (%s) - %s", id, title, author, isbn, status);
     }
 }

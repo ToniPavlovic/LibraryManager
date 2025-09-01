@@ -10,6 +10,8 @@ import java.util.List;
 
 public class BookService {
     private final BookRepository repo;
+    private static final int MAX_BORROW = 3;
+    private static final int BORROW_DAYS = 14;
 
     public BookService(BookRepository repo){
         this.repo = repo;
@@ -32,42 +34,40 @@ public class BookService {
     public void borrowBook(int bookId, User user){
         if (user == null) throw new RuntimeException("You must be logged in!");
 
-        boolean hasOverdue = repo.getAll().stream()
-                .anyMatch(b -> b.isBorrowed && b.borrowedByUserId == user.id && b.dueDate.isBefore(LocalDate.now()));
+        long borrowedCount = repo.getAll().stream()
+                .filter(b -> b.isBorrowed && b.borrowedByUserId == user.id).count();
 
-        if (hasOverdue){
-            throw new RuntimeException("You have an overdue book. Return it before borrowing a new one!");
-        }
-
-        long borrowCount = repo.getAll().stream()
-                .filter(b -> b.isBorrowed && b.borrowedByUserId == user.id)
-                .count();
-        if (borrowCount >= 1) {
-            throw new RuntimeException("You can only borrow one book at the time! PLease return that book before borrowing a new one!");
+        if (borrowedCount >= MAX_BORROW){
+            throw new RuntimeException("You have reached the maximum borrow limit (" + MAX_BORROW + " books).");
         }
 
         Book book = repo.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found!"));
-        if (book.isBorrowed) throw new RuntimeException("Book already borrowed!");
+
+        if (book.isBorrowed){
+            throw new RuntimeException("Book is already borrowed!");
+        }
 
         book.isBorrowed = true;
         book.borrowedByUserId = user.id;
         book.borrowDate = LocalDate.now();
-        book.dueDate = LocalDate.now().plusDays(14);
-        repo.save();
+        book.dueDate = LocalDate.now().plusDays(BORROW_DAYS);
 
+        repo.save();
         System.out.println("Book borrowed successfully! Due date: " + book.dueDate);
     }
 
     public void returnBook(int bookId, User user){
         Book book = repo.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found!"));
+
         if (!book.isBorrowed || book.borrowedByUserId != user.id){
             throw new RuntimeException("You did not borrow this book!");
         }
 
-        boolean isOverdue = book.dueDate.isBefore(LocalDate.now());
-        if (isOverdue) {
-            long daysLate = ChronoUnit.DAYS.between(book.dueDate, LocalDate.now());
-            System.out.println("This book is returned late by " + daysLate + " day(s)!");
+        long overdueDays;
+        if (book.dueDate.isBefore(LocalDate.now())){
+            overdueDays = ChronoUnit.DAYS.between(book.dueDate, LocalDate.now());
+            double fine = overdueDays * Book.FINE_PER_DAY;
+            System.out.println("This book is overdue by: " + overdueDays + " day(s). Fine: " + fine);
         }
 
         book.isBorrowed = false;

@@ -89,7 +89,13 @@ public class Main {
 
     private static void listBooks() {
         for (Book book : bookService.listBooks()) {
-            System.out.println(book);
+            String status;
+            if (book.isBorrowed){
+                status = "Borrowed by User ID " + book.borrowedByUserId + " (Due: " + book.dueDate + ")";
+            } else {
+                status = "Available";
+            }
+            System.out.println("[" + book.id + "] " + book.title + " by " + book.author + " - " + status);
         }
     }
 
