@@ -22,7 +22,7 @@ public class Book {
 
     @Override
     public String toString() {
-        String status = isBorrowed ? "Borrowed (User ID: " + borrowedByUserId + ", Due: " + dueDate + ")" : "Available";
+        String status = isBorrowed ? "Borrowed (Due: " + dueDate + ")" : "Available";
         return String.format("[%d] \"%s\" by %s (%s) - %s", id, title, author, isbn, status);
     }
 }

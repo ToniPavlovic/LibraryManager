@@ -31,11 +31,12 @@ public class Main {
                 switch (choice) {
                     case "1" -> login();
                     case "2" -> logout();
-                    case "3" -> listBooks();
-                    case "4" -> borrowBook();
-                    case "5" -> returnBook();
-                    case "6" -> adminMenu();
-                    case "7" -> exit();
+                    case "3" -> listAvailableBooks();
+                    case "4" -> listMyBooks();
+                    case "5" -> borrowBook();
+                    case "6" -> returnBook();
+                    case "7" -> adminMenu();
+                    case "8" -> exit();
                     default -> System.out.println("Invalid choice!");
                 }
             } catch (Exception e) {
@@ -48,11 +49,12 @@ public class Main {
         System.out.println("\n--- Library Menu ---");
         System.out.println("1) Login");
         System.out.println("2) Logout");
-        System.out.println("3) List Books");
-        System.out.println("4) Borrow Book");
-        System.out.println("5) Return Book");
-        System.out.println("6) Admin Menu");
-        System.out.println("7) Exit");
+        System.out.println("3) List available Books");
+        System.out.println("4) List my Books");
+        System.out.println("5) Borrow Book");
+        System.out.println("6) Return Book");
+        System.out.println("7) Admin Menu");
+        System.out.println("8) Exit");
         System.out.print("Choose: ");
     }
 
@@ -87,17 +89,24 @@ public class Main {
         bookService.addBook(new Book(id, title, author, isbn), loggedInUser);
     }
 
-    private static void listBooks() {
-        for (Book book : bookService.listBooks()) {
-            String status;
-            if (book.isBorrowed){
-                status = "Borrowed by User ID " + book.borrowedByUserId + " (Due: " + book.dueDate + ")";
-            } else {
-                status = "Available";
-            }
-            System.out.println("[" + book.id + "] " + book.title + " by " + book.author + " - " + status);
+    private static void listAvailableBooks() {
+        for (Book book : bookService.getAvailableBooks(loggedInUser)) {
+            System.out.println(book);
         }
     }
+
+    public static void listMyBooks(){
+        var borrowed = bookService.getBorrowedBooks(loggedInUser);
+
+        if (borrowed.isEmpty()){
+            System.out.println("You have no borrowed books!");
+        } else {
+            for (Book book : borrowed){
+                System.out.println(book);
+            }
+        }
+    }
+
 
     private static void borrowBook() {
         System.out.print("Enter book ID: ");

@@ -27,8 +27,18 @@ public class BookService {
         System.out.println("Book added successfully!.");
     }
 
-    public List<Book> listBooks(){
-        return repo.getAll();
+    public List<Book> getAvailableBooks(User user){
+        if (user == null) throw new RuntimeException("You must be logged in!");
+        return repo.getAll().stream()
+                .filter(b -> !b.isBorrowed)
+                .toList();
+    }
+
+    public List<Book> getBorrowedBooks(User user){
+        if (user == null) throw new RuntimeException("You must be logged in!");
+        return repo.getAll().stream()
+                .filter(b -> b.isBorrowed && b.borrowedByUserId == user.id)
+                .toList();
     }
 
     public void borrowBook(int bookId, User user){
