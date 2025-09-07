@@ -9,10 +9,10 @@ Admins can add, remove, and list books and users, while all users can borrow, re
 - __Borrowing & Returning:__ Borrow and return books (all users)
 - __Search:__ Search books by title or author (all users)
 - __Authentication:__ Login and logout
-- __Data Persistence:__ All data is stored in `library.json` and `users.json` using **GSON**
+- __Data Persistence:__ All data is stored in MySQL
 
 ## Structure
 - __Models:__ `Book`, `User`
-- __Repository:__ Handles JSON storage for books (`library.json`) and users (`users.json`)
+- __Repository:__ Handles MySQL database operations for books and users 
 - __Service:__ `BookService` and `UserService` manage operations and enforce admin permissions
-- __Utils:__ `JsonUtil` handles saving and loading JSON
+- __Utils:__ `DBConnection` handles database connections
