@@ -21,8 +21,6 @@ public class Main {
     private static User loggedInUser = null;
 
     public static void main(String[] args) {
-        bookRepo.load();
-        userRepo.load();
 
         while (true) {
             showMenu();
