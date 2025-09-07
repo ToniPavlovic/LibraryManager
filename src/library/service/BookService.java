@@ -22,9 +22,7 @@ public class BookService {
             throw new RuntimeException("Only admins can add books!");
         }
         repo.add(book);
-        repo.save();
-
-        System.out.println("Book added successfully!.");
+        System.out.println("Book added successfully!");
     }
 
     public List<Book> getAvailableBooks(User user){
@@ -62,7 +60,7 @@ public class BookService {
         book.borrowDate = LocalDate.now();
         book.dueDate = LocalDate.now().plusDays(BORROW_DAYS);
 
-        repo.save();
+        repo.update(book);
         System.out.println("Book borrowed successfully! Due date: " + book.dueDate);
     }
 
@@ -84,8 +82,8 @@ public class BookService {
         book.borrowedByUserId = -1;
         book.borrowDate = null;
         book.dueDate = null;
-        repo.save();
 
+        repo.update(book);
         System.out.println("Book returned successfully!");
     }
 
@@ -98,8 +96,6 @@ public class BookService {
         if (!exists) throw new RuntimeException("Book not found!");
 
         repo.remove(bookId);
-        repo.save();
-
-        System.out.println("Book returned successfully!");
+        System.out.println("Book removed successfully!");
     }
 }

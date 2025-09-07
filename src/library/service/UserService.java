@@ -20,24 +20,24 @@ public class UserService {
             }
         }
 
-        int nextId = repo.getAll().stream().mapToInt(u -> u.id).max().orElse(0) +1;
-
         if (repo.getAll().isEmpty()){
             isAdmin = true;
         }
 
-        User newUser = new User(nextId, name, hashPassword(password), isAdmin);
+        User newUser = new User(0, name, hashPassword(password), isAdmin);
         repo.add(newUser);
-        repo.save();
 
         System.out.println("User registered successfully!.");
     }
 
-    public User login(String name, String password){
-        return repo.getAll().stream()
-                .filter(u -> u.name.equals(name) && verifyPassword(password, u.password))
-                .findFirst()
+    public User login(String name, String password) {
+        User user = repo.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Invalid credentials!"));
+
+        if (!verifyPassword(password, user.password)) {
+            throw new RuntimeException("Invalid credentials!");
+        }
+        return user;
     }
 
     public List<User> listUsers(){
@@ -53,9 +53,7 @@ public class UserService {
         if (!exists) throw new RuntimeException("User not found!");
 
         repo.remove(userId);
-        repo.save();
-
-        System.out.println("User registered successfully!.");
+        System.out.println("User removed successfully!.");
     }
 
     public static String hashPassword(String password){
