@@ -1,4 +1,4 @@
-# 📚 Library Manager
+# Library Manager
 
 Java application for managing books and users in a library.
 Admins can add, remove, and list books and users, while all users can borrow, return, and search for books.
